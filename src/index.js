@@ -6,7 +6,11 @@ const token = process.env.BOT_TOKEN;
 
 const TelegramBot = require("node-telegram-bot-api");
 
-// const helpMessage = require("./help");
+const helpMessage = require("./help");
+
+const links = require("./links");
+
+// console.log(helpMessage);
 
 // replace the value below with the Telegram token you receive from @BotFather
 
@@ -31,6 +35,27 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 
 // Listen for any kind of message. There are different kinds of
 // messages.
-bot.on("message", (msg) => {});
+bot.on("message", (msg) => {
+    const chatId = msg.chat.id;
+    const userQuestion = msg.text.replace(/\//, "");
+
+    console.log(msg);
+
+    const regExhelp = /^((h|H)(elp|ELP))/;
+
+    if (regExhelp.test(userQuestion)) {
+        console.log(`User ${msg.from.username}: ${userQuestion}`);
+
+        bot.sendMessage(chatId, helpMessage).catch((error) => {
+            console.log(error.code); // => 'ETELEGRAM'
+            console.log(error.response.body); // => { ok: false, error_code: 400, description: 'Bad Request: chat not found' }
+        });
+    } else {
+        bot.sendMessage(chatId, links).catch((error) => {
+            console.log(error.code); // => 'ETELEGRAM'
+            console.log(error.response.body); // => { ok: false, error_code: 400, description: 'Bad Request: chat not found' }
+        });
+    }
+});
 
 console.log(`Bot is ready!`);
