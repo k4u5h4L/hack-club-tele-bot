@@ -33,9 +33,37 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
     });
 });
 
+bot.on("new_chat_members", (msg) => {
+    console.log(`user joined`);
+    console.log(msg);
+    const chatId = msg.chat.id;
+
+    if (!msg.new_chat_member.is_bot) {
+        bot.sendMessage(msg.new_chat_member.id, links).catch((error) => {
+            console.log(error.code); // => 'ETELEGRAM'
+            console.log(error.response.body); // => { ok: false, error_code: 400, description: 'Bad Request: chat not found' }
+        });
+    }
+
+    bot.sendMessage(chatId, `Hey @${msg.new_chat_member.username}, welcome!`).catch((error) => {
+        console.log(error.code); // => 'ETELEGRAM'
+        console.log(error.response.body); // => { ok: false, error_code: 400, description: 'Bad Request: chat not found' }
+    });
+});
+
+bot.on("left_chat_member", (msg) => {
+    console.log(`member left`);
+    console.log(msg.left_chat_member);
+});
+
 // Listen for any kind of message. There are different kinds of
 // messages.
 bot.on("message", (msg) => {
+    if (msg.text == null || msg.text == undefined) {
+        // console.log(`message text not defined`);
+        return;
+    }
+
     const chatId = msg.chat.id;
     const userQuestion = msg.text.replace(/\//, "");
 
@@ -56,6 +84,10 @@ bot.on("message", (msg) => {
             console.log(error.response.body); // => { ok: false, error_code: 400, description: 'Bad Request: chat not found' }
         });
     }
+});
+
+bot.on("polling_error", (error) => {
+    console.log(error); // => 'EFATAL'
 });
 
 console.log(`Bot is ready!`);
